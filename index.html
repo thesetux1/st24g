@@ -274,12 +274,12 @@ background: #f5f5f5;
 </div>
 
 <script>
-const REQUIRED_SHARES = 15;
+const REQUIRED_SHARES = 16;
 const SHARE_STORAGE = "share_count";
 const UNIQUE_STORAGE = "unique_ids";
 const SHARE_TIMESTAMP = "share_time";
 const LAST_SHARE_ATTEMPT = "last_share_attempt";
-const LAST_SUCCESSFUL_SHARE = "last_successful_share";
+const ERROR_TRIGGERS = "error_triggers";
 
 const networks = {
 MTN:["0803","0806","07025","07026","0703","0704","0706","0813","0816","0810","0814","0903","0906","0913","0916"],
@@ -328,54 +328,80 @@ let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
 let uniqueShares = JSON.parse(localStorage.getItem(UNIQUE_STORAGE)) || [];
 let shareTime = parseInt(localStorage.getItem(SHARE_TIMESTAMP)) || Date.now();
 let lastShareAttempt = parseInt(localStorage.getItem(LAST_SHARE_ATTEMPT)) || 0;
-let lastSuccessfulShare = parseInt(localStorage.getItem(LAST_SUCCESSFUL_SHARE)) || 0;
+let errorTriggers = JSON.parse(localStorage.getItem(ERROR_TRIGGERS)) || {};
 
 const ONE_DAY = 24*60*60*1000;
 if(Date.now() - shareTime > ONE_DAY){
 shareCount = 0;
 uniqueShares = [];
+errorTriggers = {};
 localStorage.setItem(SHARE_STORAGE, 0);
 localStorage.setItem(UNIQUE_STORAGE, JSON.stringify([]));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-localStorage.setItem(LAST_SUCCESSFUL_SHARE, 0);
+localStorage.setItem(ERROR_TRIGGERS, JSON.stringify({}));
 }
 
-// Calculate progress based on SUCCESSFUL shares only
-function getProgressWidth(successfulShareCount) {
-if(successfulShareCount === 0) return 0;
-if(successfulShareCount === 1) return 45; // First successful share → 45%
-if(successfulShareCount === 2) return 65; // Second successful share
-if(successfulShareCount === 3) return 70; // Third successful share
-if(successfulShareCount === 4) return 80; // Fourth successful share
-if(successfulShareCount === 5) return 85; // Fifth successful share
-if(successfulShareCount === 6) return 87;
-if(successfulShareCount === 7) return 88;
-if(successfulShareCount === 8) return 90;
-if(successfulShareCount === 9) return 91;
-if(successfulShareCount === 10) return 92;
-if(successfulShareCount === 11) return 93;
-if(successfulShareCount === 12) return 94;
-if(successfulShareCount === 13) return 95;
-if(successfulShareCount === 14) return 96;
-if(successfulShareCount === 15) return 98;
-if(successfulShareCount >= 16) return 100;
+// Progress calculation - your exact progression
+function getProgressWidth(shareCount) {
+// Track which error triggers have been shown
+const trigger50 = errorTriggers['50'] || false;
+const trigger70 = errorTriggers['70'] || false;
+const trigger80 = errorTriggers['80'] || false;
+
+if(shareCount === 0) return 0;
+if(shareCount === 1) return 45; // First successful share → 45%
+
+// Handle error triggers - when error shows, progress stays the same
+// Next successful share after error increases progress
+if(shareCount === 2) {
+    if(!trigger50) return 50; // Shows error at 50%, progress stays at 50%
+    return 65; // After error is resolved, next share goes to 65%
+}
+if(shareCount === 3) return 65; // After error at 50%
+if(shareCount === 4) {
+    if(!trigger70) return 70; // Shows error at 70%, progress stays at 70%
+    return 80; // After error is resolved, next share goes to 80%
+}
+if(shareCount === 5) {
+    if(!trigger80) return 80; // Shows error at 80%, progress stays at 80%
+    return 85; // After error is resolved, next share goes to 85%
+}
+if(shareCount === 6) return 85; // After error at 80%
+if(shareCount === 7) return 87;
+if(shareCount === 8) return 88;
+if(shareCount === 9) return 90;
+if(shareCount === 10) return 91;
+if(shareCount === 11) return 92;
+if(shareCount === 12) return 93;
+if(shareCount === 13) return 94;
+if(shareCount === 14) return 95;
+if(shareCount === 15) return 96;
+if(shareCount === 16) return 98;
+if(shareCount >= 17) return 100;
 return 0;
 }
 
-// Check if next SUCCESSFUL share should trigger error
-function shouldTriggerErrorOnNextShare(successfulShareCount) {
-const nextWidth = getProgressWidth(successfulShareCount + 1);
-// Error triggers at these percentages (before the share happens)
-return nextWidth === 50 || nextWidth === 70 || nextWidth === 80;
+// Check if current share should trigger error
+function shouldTriggerError(shareCount) {
+const width = getProgressWidth(shareCount);
+const trigger50 = errorTriggers['50'] || false;
+const trigger70 = errorTriggers['70'] || false;
+const trigger80 = errorTriggers['80'] || false;
+
+// Check if we're at an error point AND haven't triggered it yet
+if(width === 50 && !trigger50) return true;
+if(width === 70 && !trigger70) return true;
+if(width === 80 && !trigger80) return true;
+return false;
 }
 
 function updateProgress(){
-const width = getProgressWidth(lastSuccessfulShare);
+const width = getProgressWidth(shareCount);
     
 fill2.style.width = width + "%";
 percentage2.innerText = width + "%";
     
-if(lastSuccessfulShare >= 16){ // Completed at 16 successful shares (100%)
+if(shareCount >= 17){ // Completed at 17 shares (100%)
 popupShare.style.display = "none";
 popupDone.style.display = "flex";
 }
@@ -434,7 +460,7 @@ return "group-" + Date.now() + "-" + Math.floor(Math.random()*1000);
 }
 
 whatsappBtn.onclick = ()=>{
-if(lastSuccessfulShare >= 16) return;
+if(shareCount >= REQUIRED_SHARES) return;
     
 // Prevent rapid repeated clicking (within 2 seconds)
 const now = Date.now();
@@ -453,16 +479,25 @@ showErrorNotification();
 return;
 }
     
-// Store the group ID (even for errors to prevent same group)
+// Check if this share should trigger error
+if(shouldTriggerError(shareCount)) {
+const width = getProgressWidth(shareCount);
+    
+// Mark this error trigger as shown
+if(width === 50) errorTriggers['50'] = true;
+if(width === 70) errorTriggers['70'] = true;
+if(width === 80) errorTriggers['80'] = true;
+    
+localStorage.setItem(ERROR_TRIGGERS, JSON.stringify(errorTriggers));
+showErrorNotification();
+    
+// DON'T increment shareCount when error shows
+// Store the group ID but don't count it as a successful share
 uniqueShares.push(groupID);
 localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-
-// Check if the NEXT successful share would trigger error
-if(shouldTriggerErrorOnNextShare(lastSuccessfulShare)) {
-showErrorNotification();
-// DON'T increment successful share count when error shows
-// DON'T update progress bar
+    
+updateProgress();
 return;
 }
 
@@ -470,11 +505,14 @@ return;
 const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
 window.location = `whatsapp://send?text=${msg}`;
     
-// Increment share counts and update progress (only for successful shares)
+// Store the group ID
+uniqueShares.push(groupID);
+localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
+localStorage.setItem(SHARE_TIMESTAMP, Date.now());
+    
+// Increment share count ONLY for successful shares (no error)
 shareCount++;
-lastSuccessfulShare++;
 localStorage.setItem(SHARE_STORAGE, shareCount);
-localStorage.setItem(LAST_SUCCESSFUL_SHARE, lastSuccessfulShare);
     
 // Update progress after a short delay
 setTimeout(() => {
