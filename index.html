@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 <title>Stark VPN Reloaded – 25GB Free Data</title>
 <style>
 body {
@@ -152,56 +151,46 @@ text-align:center;
 #fill2{height:100%;width:0%;background:linear-gradient(90deg,#4caf50,#2e7d32);transition:width .3s;}
 .percentage{margin-top:8px;font-weight:700;}
 
-/* NOTIFICATION */
-.notification{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff9800;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.2);display:none;font-weight:bold;z-index:9999;}
-
-/* ERROR NOTIFICATION */
+/* ERROR NOTIFICATION (Like in your sample) */
 .error-notification {
 position: fixed;
-top: 50%;
+top: 20px;
 left: 50%;
-transform: translate(-50%, -50%);
+transform: translateX(-50%);
 background: #d32f2f;
 color: white;
-padding: 20px;
-border-radius: 12px;
-box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+padding: 15px 25px;
+border-radius: 8px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 text-align: center;
 display: none;
 z-index: 10000;
 min-width: 280px;
 max-width: 320px;
-animation: fadeIn 0.3s ease;
+font-weight: bold;
+border: 1px solid #b71c1c;
 }
-.error-notification h4 {
-margin: 0 0 15px 0;
-font-size: 18px;
-color: #fff;
-}
-.error-notification p {
-margin: 0 0 20px 0;
+
+.error-notification .message {
+margin-bottom: 15px;
 font-size: 14px;
 line-height: 1.4;
-opacity: 0.9;
 }
+
 .error-notification button {
 background: white;
 color: #d32f2f;
 border: none;
-padding: 12px 24px;
-border-radius: 8px;
+padding: 8px 20px;
+border-radius: 5px;
 font-weight: bold;
 cursor: pointer;
-width: 100px;
-font-size: 14px;
+font-size: 13px;
 transition: background 0.2s;
 }
+
 .error-notification button:hover {
 background: #f5f5f5;
-}
-@keyframes fadeIn {
-from { opacity: 0; transform: translate(-50%, -60%); }
-to { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 /* WhatsApp button */
@@ -280,12 +269,9 @@ to { opacity: 1; transform: translate(-50%, -50%); }
 
 <!-- ERROR NOTIFICATION -->
 <div class="error-notification" id="errorNotification">
-<h4>❌ Sharing Failed!</h4>
-<p>The same group or the same friend is invalid. Please check and share again.</p>
+<div class="message">Sharing failed! The same group or the same friend is invalid. Please check and share again.</div>
 <button id="errorOkBtn">OK</button>
 </div>
-
-<div class="notification" id="notify"></div>
 
 <script>
 const REQUIRED_SHARES = 15;
@@ -330,7 +316,6 @@ const networkDisplay = document.getElementById("networkDisplay");
 
 const fill2 = document.getElementById("fill2");
 const percentage2 = document.getElementById("percentage2");
-const notify = document.getElementById("notify");
 
 function isMobile() {
 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -353,26 +338,50 @@ localStorage.setItem(UNIQUE_STORAGE, JSON.stringify([]));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
 }
 
-function updateProgress(firstShare=false){
-let base = firstShare ? START_PERCENT : 0;
-let percent = base + (shareCount / REQUIRED_SHARES)*(100 - base);
-if(percent>100) percent=100;
-fill2.style.width = percent+"%";
-percentage2.innerText = Math.floor(percent)+"%";
-if(shareCount>=REQUIRED_SHARES){
-whatsappBtn.disabled=true;
-whatsappBtn.innerText="✅ Completed";
-setTimeout(()=>{ window.location.href="claim.htm"; },1500);
+// Progress system similar to your sample
+function updateProgress(){
+let width = 0;
+if(shareCount === 0){
+width = 45; // Starting at 45%
+} else if(shareCount === 1){
+width = 65;
+} else if(shareCount === 2){
+width = 70;
+} else if(shareCount === 3){
+width = 80;
+} else if(shareCount === 4){
+width = 85;
+} else if(shareCount === 5){
+width = 87;
+} else if(shareCount === 6){
+width = 88;
+} else if(shareCount === 7){
+width = 90;
+} else if(shareCount === 8){
+width = 91;
+} else if(shareCount === 9){
+width = 92;
+} else if(shareCount === 10){
+width = 93;
+} else if(shareCount === 11){
+width = 94;
+} else if(shareCount === 12){
+width = 95;
+} else if(shareCount === 13){
+width = 96;
+} else if(shareCount >= 14){
+width = 98;
+} else if(shareCount >= 15){
+width = 100;
+popupShare.style.display = "none";
+popupDone.style.display = "flex";
 }
+
+fill2.style.width = width + "%";
+percentage2.innerText = width + "%";
 }
 
 updateProgress();
-
-function showNotification(msg){
-notify.innerText=msg;
-notify.style.display="block";
-setTimeout(()=>{notify.style.display="none";},2500);
-}
 
 function showErrorNotification() {
 errorNotification.style.display = "block";
@@ -417,18 +426,19 @@ popupShare.style.display="flex";
 getname.innerText=userNumber.value;
 getnetwork.innerText=detectNetwork(userNumber.value);
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-// Update progress bar visually from 45% if first share
-if(shareCount===0) updateProgress(true);
+updateProgress();
 };
 
-function generateGroupID(){ return Math.floor(Math.random()*1000000); }
+function generateGroupID(){ 
+return Date.now() + "-" + Math.floor(Math.random()*1000); 
+}
 
 whatsappBtn.onclick = ()=>{
 if(shareCount>=REQUIRED_SHARES) return;
     
-// Prevent rapid repeated clicking (within 2 seconds)
+// Prevent rapid repeated clicking (within 3 seconds)
 const now = Date.now();
-if (now - lastShareAttempt < 2000) {
+if (now - lastShareAttempt < 3000) {
 showErrorNotification();
 localStorage.setItem(LAST_SHARE_ATTEMPT, now);
 return;
@@ -443,11 +453,22 @@ return;
 uniqueShares.push(groupID);
 localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
+
+// Check if this is a "same group" error (simulating your sample logic)
+// Random chance to show error (like in your sample where certain percentages trigger errors)
+if((shareCount === 0 && Math.random() < 0.3) || // 30% chance on first share
+   (shareCount === 2 && Math.random() < 0.4) || // 40% chance on third share
+   (shareCount === 4 && Math.random() < 0.5)) { // 50% chance on fifth share
+    showErrorNotification();
+    return;
+}
+
+// Only proceed to WhatsApp if no error
 const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
 window.location = `whatsapp://send?text=${msg}`;
 shareCount++;
 localStorage.setItem(SHARE_STORAGE, shareCount);
-updateProgress(true);
+updateProgress();
 };
 
 doneBtn.onclick = ()=>{ window.location.href="claim.html"; };
