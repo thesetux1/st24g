@@ -350,7 +350,7 @@ whatsappBtn.onclick = ()=>{
   localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
   localStorage.setItem(SHARE_TIMESTAMP, Date.now());
   const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
-  window.open("https://wa.me/?text=" + msg, "_blank");
+  window.open("https://wa.me/?text=" + msg, "_self");
   shareCount++;
   localStorage.setItem(SHARE_STORAGE, shareCount);
   updateProgress(true);
