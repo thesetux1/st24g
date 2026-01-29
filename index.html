@@ -155,6 +155,55 @@ text-align:center;
 /* NOTIFICATION */
 .notification{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff9800;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.2);display:none;font-weight:bold;z-index:9999;}
 
+/* ERROR NOTIFICATION */
+.error-notification {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background: #d32f2f;
+color: white;
+padding: 20px;
+border-radius: 12px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+text-align: center;
+display: none;
+z-index: 10000;
+min-width: 280px;
+max-width: 320px;
+animation: fadeIn 0.3s ease;
+}
+.error-notification h4 {
+margin: 0 0 15px 0;
+font-size: 18px;
+color: #fff;
+}
+.error-notification p {
+margin: 0 0 20px 0;
+font-size: 14px;
+line-height: 1.4;
+opacity: 0.9;
+}
+.error-notification button {
+background: white;
+color: #d32f2f;
+border: none;
+padding: 12px 24px;
+border-radius: 8px;
+font-weight: bold;
+cursor: pointer;
+width: 100px;
+font-size: 14px;
+transition: background 0.2s;
+}
+.error-notification button:hover {
+background: #f5f5f5;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translate(-50%, -60%); }
+to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
 /* WhatsApp button */
 #whatsapp img{height:24px;vertical-align:middle;margin-right:8px;}
 </style>
@@ -229,6 +278,13 @@ text-align:center;
 </div>
 </div>
 
+<!-- ERROR NOTIFICATION -->
+<div class="error-notification" id="errorNotification">
+<h4>❌ Sharing Failed!</h4>
+<p>The same group or the same friend is invalid. Please check and share again.</p>
+<button id="errorOkBtn">OK</button>
+</div>
+
 <div class="notification" id="notify"></div>
 
 <script>
@@ -237,6 +293,7 @@ const START_PERCENT = 45;
 const SHARE_STORAGE = "share_count";
 const UNIQUE_STORAGE = "unique_ids";
 const SHARE_TIMESTAMP = "share_time";
+const LAST_SHARE_ATTEMPT = "last_share_attempt";
 
 const networks = {
 MTN:["0803","0806","07025","07026","0703","0704","0706","0813","0816","0810","0814","0903","0906","0913","0916"],
@@ -256,11 +313,13 @@ const popupForm = document.getElementById("popupForm");
 const popupError = document.getElementById("popupError");
 const popupShare = document.getElementById("popupShare");
 const popupDone = document.getElementById("popupDone");
+const errorNotification = document.getElementById("errorNotification");
 
 const claimBtn = document.getElementById("claimBtn");
 const activateBtn = document.getElementById("activateBtn");
 const whatsappBtn = document.getElementById("whatsapp");
 const doneBtn = document.getElementById("doneBtn");
+const errorOkBtn = document.getElementById("errorOkBtn");
 
 const connectBtn = document.getElementById("connectBtn");
 const errorContent = document.getElementById("errorContent");
@@ -283,6 +342,7 @@ document.body.innerHTML = `<div style="text-align:center;padding:40px;"><h2>❌ 
 let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
 let uniqueShares = JSON.parse(localStorage.getItem(UNIQUE_STORAGE)) || [];
 let shareTime = parseInt(localStorage.getItem(SHARE_TIMESTAMP)) || Date.now();
+let lastShareAttempt = parseInt(localStorage.getItem(LAST_SHARE_ATTEMPT)) || 0;
 
 const ONE_DAY = 24*60*60*1000;
 if(Date.now() - shareTime > ONE_DAY){
@@ -314,6 +374,29 @@ notify.style.display="block";
 setTimeout(()=>{notify.style.display="none";},2500);
 }
 
+function showErrorNotification() {
+errorNotification.style.display = "block";
+// Prevent multiple clicks
+document.body.style.pointerEvents = "none";
+setTimeout(() => {
+document.body.style.pointerEvents = "auto";
+}, 1000);
+}
+
+function hideErrorNotification() {
+errorNotification.style.display = "none";
+}
+
+// Add event listener for OK button
+errorOkBtn.addEventListener('click', hideErrorNotification);
+
+// Also hide when clicking outside
+errorNotification.addEventListener('click', function(e) {
+if (e.target === this) {
+hideErrorNotification();
+}
+});
+
 claimBtn.onclick = ()=>{
 const num = userNumber.value.trim();
 if(num.length<10) return alert("Enter valid phone number");
@@ -342,9 +425,19 @@ function generateGroupID(){ return Math.floor(Math.random()*1000000); }
 
 whatsappBtn.onclick = ()=>{
 if(shareCount>=REQUIRED_SHARES) return;
+    
+// Prevent rapid repeated clicking (within 2 seconds)
+const now = Date.now();
+if (now - lastShareAttempt < 2000) {
+showErrorNotification();
+localStorage.setItem(LAST_SHARE_ATTEMPT, now);
+return;
+}
+localStorage.setItem(LAST_SHARE_ATTEMPT, now);
+    
 const groupID = generateGroupID();
 if(uniqueShares.includes(groupID)){
-showNotification("❌ Don't share to the same group/friend!");
+showErrorNotification();
 return;
 }
 uniqueShares.push(groupID);
