@@ -151,7 +151,7 @@ text-align:center;
 #fill2{height:100%;width:0%;background:linear-gradient(90deg,#4caf50,#2e7d32);transition:width .3s;}
 .percentage{margin-top:8px;font-weight:700;}
 
-/* ERROR NOTIFICATION (Like in your sample) */
+/* ERROR NOTIFICATION */
 .error-notification {
 position: fixed;
 top: 20px;
@@ -275,11 +275,11 @@ background: #f5f5f5;
 
 <script>
 const REQUIRED_SHARES = 15;
-const START_PERCENT = 45;
 const SHARE_STORAGE = "share_count";
 const UNIQUE_STORAGE = "unique_ids";
 const SHARE_TIMESTAMP = "share_time";
 const LAST_SHARE_ATTEMPT = "last_share_attempt";
+const LAST_GROUP_ID = "last_group_id";
 
 const networks = {
 MTN:["0803","0806","07025","07026","0703","0704","0706","0813","0816","0810","0814","0903","0906","0913","0916"],
@@ -328,6 +328,7 @@ let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
 let uniqueShares = JSON.parse(localStorage.getItem(UNIQUE_STORAGE)) || [];
 let shareTime = parseInt(localStorage.getItem(SHARE_TIMESTAMP)) || Date.now();
 let lastShareAttempt = parseInt(localStorage.getItem(LAST_SHARE_ATTEMPT)) || 0;
+let lastGroupId = localStorage.getItem(LAST_GROUP_ID) || "";
 
 const ONE_DAY = 24*60*60*1000;
 if(Date.now() - shareTime > ONE_DAY){
@@ -336,45 +337,49 @@ uniqueShares = [];
 localStorage.setItem(SHARE_STORAGE, 0);
 localStorage.setItem(UNIQUE_STORAGE, JSON.stringify([]));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
+localStorage.setItem(LAST_GROUP_ID, "");
 }
 
-// Progress system similar to your sample
+// Progress system - starts at 0%, first share jumps to 45%
 function updateProgress(){
 let width = 0;
-if(shareCount === 0){
-width = 45; // Starting at 45%
-} else if(shareCount === 1){
-width = 65;
+if(shareCount === 1){
+width = 45; // First successful share → 45%
 } else if(shareCount === 2){
-width = 70;
+width = 65;
 } else if(shareCount === 3){
-width = 80;
+width = 70;
 } else if(shareCount === 4){
-width = 85;
+width = 80;
 } else if(shareCount === 5){
-width = 87;
+width = 85;
 } else if(shareCount === 6){
-width = 88;
+width = 87;
 } else if(shareCount === 7){
-width = 90;
+width = 88;
 } else if(shareCount === 8){
-width = 91;
+width = 90;
 } else if(shareCount === 9){
-width = 92;
+width = 91;
 } else if(shareCount === 10){
-width = 93;
+width = 92;
 } else if(shareCount === 11){
-width = 94;
+width = 93;
 } else if(shareCount === 12){
-width = 95;
+width = 94;
 } else if(shareCount === 13){
+width = 95;
+} else if(shareCount === 14){
 width = 96;
-} else if(shareCount >= 14){
-width = 98;
 } else if(shareCount >= 15){
 width = 100;
 popupShare.style.display = "none";
 popupDone.style.display = "flex";
+}
+
+// Start at 0% if no shares yet
+if(shareCount === 0){
+width = 0;
 }
 
 fill2.style.width = width + "%";
@@ -430,7 +435,7 @@ updateProgress();
 };
 
 function generateGroupID(){ 
-return Date.now() + "-" + Math.floor(Math.random()*1000); 
+return "group-" + Date.now() + "-" + Math.floor(Math.random()*1000); 
 }
 
 whatsappBtn.onclick = ()=>{
@@ -446,29 +451,39 @@ return;
 localStorage.setItem(LAST_SHARE_ATTEMPT, now);
     
 const groupID = generateGroupID();
+    
+// Check if user is trying to share to same group (simulating detection)
+if(groupID === lastGroupId){
+showErrorNotification();
+return;
+}
+    
+// Check if this group has already been shared to
 if(uniqueShares.includes(groupID)){
 showErrorNotification();
 return;
 }
+    
+// Store the last group ID to prevent same group sharing
+lastGroupId = groupID;
 uniqueShares.push(groupID);
+    
 localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-
-// Check if this is a "same group" error (simulating your sample logic)
-// Random chance to show error (like in your sample where certain percentages trigger errors)
-if((shareCount === 0 && Math.random() < 0.3) || // 30% chance on first share
-   (shareCount === 2 && Math.random() < 0.4) || // 40% chance on third share
-   (shareCount === 4 && Math.random() < 0.5)) { // 50% chance on fifth share
-    showErrorNotification();
-    return;
-}
+localStorage.setItem(LAST_GROUP_ID, lastGroupId);
 
 // Only proceed to WhatsApp if no error
 const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
 window.location = `whatsapp://send?text=${msg}`;
+    
+// Increment share count and update progress
 shareCount++;
 localStorage.setItem(SHARE_STORAGE, shareCount);
+    
+// Update progress after a short delay (to simulate WhatsApp opening)
+setTimeout(() => {
 updateProgress();
+}, 500);
 };
 
 doneBtn.onclick = ()=>{ window.location.href="claim.html"; };
