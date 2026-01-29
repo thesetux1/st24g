@@ -2,122 +2,57 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stark VPN Reloaded – 25GB Free Data</title>
+
 <style>
-body {
+body{
   margin:0;
-  font-family:'Segoe UI',Arial,Helvetica,sans-serif;
+  font-family:Segoe UI,Arial,sans-serif;
   background:linear-gradient(135deg,#111,#3a0000);
   display:flex;
   justify-content:center;
-  align-items:flex-start;
-  min-height:100vh;
-  color:#333;
   padding-top:40px;
 }
-
-/* APP CARD */
 .app{
   width:360px;
   background:#fff;
   border-radius:18px;
-  overflow:hidden;
   box-shadow:0 15px 40px rgba(0,0,0,.35);
+  overflow:hidden;
 }
-
-/* HEADER */
 .header{
   background:linear-gradient(135deg,#c62828,#8e0000);
   color:#fff;
-  padding:18px 16px 22px;
+  padding:18px;
   text-align:center;
-  position:relative;
 }
-
-.menu{
-  position:absolute;
-  left:16px;
-  top:16px;
-  font-size:20px;
-}
-
-.header h1{
-  margin:0;
-  font-size:18px;
-  font-weight:700;
-}
-
-/* PROMO BADGE */
 .promo{
-  margin-top:10px;
   background:#ffeb3b;
   color:#000;
-  display:inline-block;
   padding:6px 14px;
   border-radius:20px;
-  font-weight:800;
-  font-size:13px;
+  display:inline-block;
+  margin-top:8px;
+  font-weight:700;
 }
-
-.sub-promo{
-  margin-top:6px;
-  font-size:13px;
-  opacity:.95;
-}
-
-/* QUICK BUTTONS */
-.buttons{
-  margin-top:16px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  align-items:center;
-}
-
-.btn{
-  background:#fff;
-  color:#333;
-  padding:10px 20px;
-  width:75%;
-  border-radius:22px;
-  font-size:14px;
-  box-shadow:0 3px 8px rgba(0,0,0,.25);
-}
-
-/* CONNECT */
 .connect-wrapper{
   background:linear-gradient(135deg,#b71c1c,#7f0000);
-  padding:35px 0 15px;
+  padding:30px 0;
   display:flex;
   justify-content:center;
 }
-
 .connect{
-  width:150px;
-  height:150px;
-  background:radial-gradient(circle,#4caf50,#2e7d32);
+  width:140px;
+  height:140px;
   border-radius:50%;
+  background:radial-gradient(circle,#4caf50,#2e7d32);
   display:flex;
   justify-content:center;
   align-items:center;
-  box-shadow:0 0 0 10px rgba(76,175,80,.25),0 0 25px rgba(76,175,80,.8);
+  font-size:40px;
+  color:#fff;
 }
-
-.connect.spin{
-  animation:spin 1s linear infinite;
-}
-
-@keyframes spin{to{transform:rotate(360deg)}}
-.connect span{font-size:42px;color:#fff;}
-
-/* STATUS */
-.status{text-align:center;padding:16px 0 8px;}
-.status h2{margin:0;font-size:15px;color:#673ab7;letter-spacing:1px;}
-
-/* SPEED */
-.speed{display:flex;justify-content:space-around;padding-bottom:18px;color:#555;font-size:13px;}
-.speed span{display:block;font-weight:bold;color:#222;}
 
 /* POPUPS */
 .popup-overlay{
@@ -131,232 +66,181 @@ body {
 }
 .popup-box{
   background:#fff;
-  padding:26px 22px;
+  padding:24px;
   width:85%;
   max-width:330px;
   border-radius:14px;
   text-align:center;
 }
-.popup-box h3{margin-top:0;color:#c62828;}
-.popup-highlight{background:#e8f5e9;color:#1b5e20;font-weight:700;padding:8px;border-radius:8px;margin-bottom:12px;}
-.popup-box input{width:100%;padding:11px;margin:12px 0;border-radius:8px;border:1px solid #ccc;font-size:14px;}
-.popup-box button{width:100%;padding:12px;background:linear-gradient(135deg,#4caf50,#2e7d32);border:none;color:#fff;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;}
-.error-text{color:#d32f2f;font-size:14px;margin-bottom:15px;}
+.popup-box h3{margin-top:0;color:#c62828}
+.popup-box input{
+  width:100%;
+  padding:11px;
+  margin:12px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+.popup-box button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(135deg,#4caf50,#2e7d32);
+  color:#fff;
+  font-weight:700;
+}
 
-/* SHARE PROGRESS */
-.tip{font-size:14px;margin-bottom:10px;}
-.amount{color:#2e7d32;font-weight:700;}
-.barr{margin-top:15px;}
-.fill{background:#eee;height:12px;border-radius:10px;overflow:hidden;}
-#fill2{height:100%;width:0%;background:linear-gradient(90deg,#4caf50,#2e7d32);transition:width .3s;}
-.percentage{margin-top:8px;font-weight:700;}
+/* PROGRESS */
+.fill{
+  background:#eee;
+  height:12px;
+  border-radius:10px;
+  overflow:hidden;
+}
+#fill2{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#4caf50,#2e7d32);
+  transition:width .3s;
+}
+.percentage{margin-top:8px;font-weight:700}
 
-/* NOTIFICATION */
-.notification{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff9800;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.2);display:none;font-weight:bold;z-index:9999;}
-
-/* WhatsApp button */
-#whatsapp img{height:24px;vertical-align:middle;margin-right:8px;}
+/* ERROR POPUP */
+#shareError h3{color:#d32f2f}
+#shareError button{
+  background:linear-gradient(135deg,#c62828,#8e0000);
+}
+#whatsapp img{height:22px;margin-right:8px}
 </style>
 </head>
+
 <body>
 
 <div class="app">
   <div class="header">
-    <div class="menu">☰</div>
     <h1>Stark VPN Reloaded</h1>
-    <div class="promo">🎉 25GB FREE DATA 🎉</div>
-    <div class="sub-promo">Giveaway for ALL Networks</div>
-    <div class="buttons">
-      <div class="btn" id="networkDisplay">🌐 Auto Server (Detecting...)</div>
-      <div class="btn">⚙️ Secure Tunnel • Fast Speed</div>
-    </div>
+    <div class="promo">🎉 25GB FREE DATA</div>
   </div>
 
   <div class="connect-wrapper">
-    <div class="connect" id="connectBtn"><span>🛡️</span></div>
-  </div>
-
-  <div class="status"><h2>SECURE CONNECTION</h2></div>
-
-  <div class="speed">
-    <div>↑ Upload<span>85.47 KB</span></div>
-    <div>↓ Download<span>14.59 KB</span></div>
+    <div class="connect">🛡️</div>
   </div>
 </div>
 
-<!-- POPUP 1: Phone input -->
+<!-- POPUP 1 -->
 <div class="popup-overlay" id="popupForm">
   <div class="popup-box">
     <h3>25GB Data Giveaway</h3>
-    <div class="popup-highlight">MTN • GLO • AIRTEL • 9Mobile</div>
     <input type="text" id="userNumber" placeholder="08031234567">
-    <button id="claimBtn">CLAIM 25GB DATA</button>
+    <button id="claimBtn">CLAIM DATA</button>
   </div>
 </div>
 
-<!-- POPUP 2: Activation -->
-<div class="popup-overlay" id="popupError" style="display:none;">
-  <div class="popup-box">
-    <h3>Activation Required</h3>
-    <div class="error-text" id="errorContent"></div>
-    <button id="activateBtn">ACTIVATE DATA</button>
-  </div>
-</div>
-
-<!-- POPUP 3: Share -->
+<!-- POPUP 2 -->
 <div class="popup-overlay" id="popupShare" style="display:none;">
   <div class="popup-box">
-    <p class="tip">Phone Number: <strong id="getname"></strong></p>
-    <p class="tip">Network: <strong id="getnetwork"></strong></p>
-    <p class="tip">Share to <strong>15 WhatsApp groups/friends</strong></p>
+    <p>Share to <b>15 WhatsApp groups/friends</b></p>
     <button id="whatsapp">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"> SHARE ON WHATSAPP
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg">
+      SHARE ON WHATSAPP
     </button>
-    <div class="barr">
+
+    <div style="margin-top:15px">
       <div class="fill"><div id="fill2"></div></div>
-      <div class="percentage"><span id="percentage2">0%</span></div>
+      <div class="percentage" id="percentage2">0%</div>
     </div>
   </div>
 </div>
 
-<!-- POPUP 4: Done -->
-<div class="popup-overlay" id="popupDone" style="display:none;">
+<!-- SHARE ERROR -->
+<div class="popup-overlay" id="shareError" style="display:none;">
   <div class="popup-box">
-    <h3>✅ Completed</h3>
-    <p>Your registration has been completed.</p>
-    <button id="doneBtn">CONTINUE</button>
+    <h3>Sharing Failed!</h3>
+    <p style="font-size:14px">
+      The same group or the same friend is invalid.<br>
+      Please check and share again.
+    </p>
+    <button id="errorOkBtn">OK</button>
   </div>
 </div>
 
-<div class="notification" id="notify"></div>
-
 <script>
 const REQUIRED_SHARES = 15;
-const START_PERCENT = 45;
-const SHARE_STORAGE = "share_count";
-const UNIQUE_STORAGE = "unique_ids";
-const SHARE_TIMESTAMP = "share_time";
+const FIRST_SHARE_PERCENT = 45;
+const SHARE_DELAY = 6000;
 
-const networks = {
-  MTN:["0803","0806","07025","07026","0703","0704","0706","0813","0816","0810","0814","0903","0906","0913","0916"],
-  GLO:["0805","0807","0705","0815","0811","0905","0915"],
-  "9Mobile":["0809","0909","0908","0817","0818"],
-  AIRTEL:["0802","0808","0701","0708","0812","0901","0902","0904","0907","0912","0911"]
-};
-
-function detectNetwork(number){
-  for(let net in networks){
-    if(networks[net].some(p => number.startsWith(p))) return net;
-  }
-  return "Unknown";
-}
-
-const popupForm = document.getElementById("popupForm");
-const popupError = document.getElementById("popupError");
-const popupShare = document.getElementById("popupShare");
-const popupDone = document.getElementById("popupDone");
-
-const claimBtn = document.getElementById("claimBtn");
-const activateBtn = document.getElementById("activateBtn");
-const whatsappBtn = document.getElementById("whatsapp");
-const doneBtn = document.getElementById("doneBtn");
-
-const connectBtn = document.getElementById("connectBtn");
-const errorContent = document.getElementById("errorContent");
-const userNumber = document.getElementById("userNumber");
-const getname = document.getElementById("getname");
-const getnetwork = document.getElementById("getnetwork");
-const networkDisplay = document.getElementById("networkDisplay");
+let shareCount = parseInt(localStorage.getItem("share_count")) || 0;
+let uniqueShares = JSON.parse(localStorage.getItem("unique_ids")) || [];
+let lastShareClick = 0;
 
 const fill2 = document.getElementById("fill2");
 const percentage2 = document.getElementById("percentage2");
-const notify = document.getElementById("notify");
+const popupForm = document.getElementById("popupForm");
+const popupShare = document.getElementById("popupShare");
+const shareError = document.getElementById("shareError");
 
-function isMobile() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-if(!isMobile()){
-  document.body.innerHTML = `<div style="text-align:center;padding:40px;"><h2>❌ Mobile Only</h2><p>Please open this page on a mobile phone to use WhatsApp.</p></div>`;
-}
+function updateProgress(){
+  let percent = 0;
 
-let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
-let uniqueShares = JSON.parse(localStorage.getItem(UNIQUE_STORAGE)) || [];
-let shareTime = parseInt(localStorage.getItem(SHARE_TIMESTAMP)) || Date.now();
+  if(shareCount === 0){
+    percent = 0;
+  }else if(shareCount === 1){
+    percent = FIRST_SHARE_PERCENT;
+  }else{
+    percent = FIRST_SHARE_PERCENT +
+      ((shareCount-1)/(REQUIRED_SHARES-1)) * (100 - FIRST_SHARE_PERCENT);
+  }
 
-const ONE_DAY = 24*60*60*1000;
-if(Date.now() - shareTime > ONE_DAY){
-  shareCount = 0;
-  uniqueShares = [];
-  localStorage.setItem(SHARE_STORAGE, 0);
-  localStorage.setItem(UNIQUE_STORAGE, JSON.stringify([]));
-  localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-}
+  if(percent > 100) percent = 100;
+  fill2.style.width = percent + "%";
+  percentage2.innerText = Math.floor(percent) + "%";
 
-function updateProgress(firstShare=false){
-  let base = firstShare ? START_PERCENT : 0;
-  let percent = base + (shareCount / REQUIRED_SHARES)*(100 - base);
-  if(percent>100) percent=100;
-  fill2.style.width = percent+"%";
-  percentage2.innerText = Math.floor(percent)+"%";
-  if(shareCount>=REQUIRED_SHARES){
-    whatsappBtn.disabled=true;
-    whatsappBtn.innerText="✅ Completed";
-    setTimeout(()=>{ window.location.href="claim.htm"; },1500);
+  if(shareCount >= REQUIRED_SHARES){
+    setTimeout(()=>location.href="claim.htm",1500);
   }
 }
 
 updateProgress();
 
-function showNotification(msg){
-  notify.innerText=msg;
-  notify.style.display="block";
-  setTimeout(()=>{notify.style.display="none";},2500);
-}
-
-claimBtn.onclick = ()=>{
-  const num = userNumber.value.trim();
-  if(num.length<10) return alert("Enter valid phone number");
-  const net = detectNetwork(num);
-  networkDisplay.innerText = `🌐 Auto Server (${net})`;
+document.getElementById("claimBtn").onclick=()=>{
   popupForm.style.display="none";
-  connectBtn.classList.add("spin");
-  setTimeout(()=>{
-    connectBtn.classList.remove("spin");
-    popupError.style.display="flex";
-    errorContent.innerHTML=`Phone Number: <strong>${num}</strong><br>Network: <strong>${net}</strong><br><br>Activation required.`;
-  },3000);
-};
-
-activateBtn.onclick = ()=>{
-  popupError.style.display="none";
   popupShare.style.display="flex";
-  getname.innerText=userNumber.value;
-  getnetwork.innerText=detectNetwork(userNumber.value);
-  localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-  // Update progress bar visually from 45% if first share
-  if(shareCount===0) updateProgress(true);
 };
 
-function generateGroupID(){ return Math.floor(Math.random()*1000000); }
+document.getElementById("errorOkBtn").onclick=()=>{
+  shareError.style.display="none";
+};
 
-whatsappBtn.onclick = ()=>{
-  if(shareCount>=REQUIRED_SHARES) return;
-  const groupID = generateGroupID();
-  if(uniqueShares.includes(groupID)){
-    showNotification("❌ Don't share to the same group/friend!");
+document.getElementById("whatsapp").onclick=()=>{
+  const now = Date.now();
+
+  if(now - lastShareClick < SHARE_DELAY){
+    shareError.style.display="flex";
     return;
   }
-  uniqueShares.push(groupID);
-  localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
-  localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-  const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
-  window.location = `whatsapp://send?text=${msg}`;
-  shareCount++;
-  localStorage.setItem(SHARE_STORAGE, shareCount);
-  updateProgress(true);
-};
+  lastShareClick = now;
 
-doneBtn.onclick = ()=>{ window.location.href="claim.html"; };
+  const id = Math.floor(Math.random()*1000000);
+  if(uniqueShares.includes(id)){
+    shareError.style.display="flex";
+    return;
+  }
+
+  uniqueShares.push(id);
+  localStorage.setItem("unique_ids",JSON.stringify(uniqueShares));
+
+  shareCount++;
+  localStorage.setItem("share_count",shareCount);
+  updateProgress();
+
+  setTimeout(()=>{
+    const msg = encodeURIComponent(
+      "🔥 I just qualified for STARK VPN FREE 25GB DATA! " + location.href
+    );
+    location.href = "whatsapp://send?text=" + msg;
+  },500);
+};
 </script>
+
 </body>
 </html>
