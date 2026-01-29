@@ -169,6 +169,12 @@ min-width: 280px;
 max-width: 320px;
 font-weight: bold;
 border: 1px solid #b71c1c;
+animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .error-notification .message {
@@ -274,12 +280,10 @@ background: #f5f5f5;
 </div>
 
 <script>
-const REQUIRED_SHARES = 16;
+const REQUIRED_SHARES = 15;
 const SHARE_STORAGE = "share_count";
-const UNIQUE_STORAGE = "unique_ids";
 const SHARE_TIMESTAMP = "share_time";
 const LAST_SHARE_ATTEMPT = "last_share_attempt";
-const ERROR_TRIGGERS = "error_triggers";
 
 const networks = {
 MTN:["0803","0806","07025","07026","0703","0704","0706","0813","0816","0810","0814","0903","0906","0913","0916"],
@@ -325,48 +329,25 @@ document.body.innerHTML = `<div style="text-align:center;padding:40px;"><h2>❌ 
 }
 
 let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
-let uniqueShares = JSON.parse(localStorage.getItem(UNIQUE_STORAGE)) || [];
 let shareTime = parseInt(localStorage.getItem(SHARE_TIMESTAMP)) || Date.now();
 let lastShareAttempt = parseInt(localStorage.getItem(LAST_SHARE_ATTEMPT)) || 0;
-let errorTriggers = JSON.parse(localStorage.getItem(ERROR_TRIGGERS)) || {};
 
 const ONE_DAY = 24*60*60*1000;
 if(Date.now() - shareTime > ONE_DAY){
 shareCount = 0;
-uniqueShares = [];
-errorTriggers = {};
 localStorage.setItem(SHARE_STORAGE, 0);
-localStorage.setItem(UNIQUE_STORAGE, JSON.stringify([]));
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-localStorage.setItem(ERROR_TRIGGERS, JSON.stringify({}));
 }
 
-// Progress calculation - your exact progression
+// Progress calculation - each click opens WhatsApp and increases progress
 function getProgressWidth(shareCount) {
-// Track which error triggers have been shown
-const trigger50 = errorTriggers['50'] || false;
-const trigger70 = errorTriggers['70'] || false;
-const trigger80 = errorTriggers['80'] || false;
-
 if(shareCount === 0) return 0;
 if(shareCount === 1) return 45; // First successful share → 45%
-
-// Handle error triggers - when error shows, progress stays the same
-// Next successful share after error increases progress
-if(shareCount === 2) {
-    if(!trigger50) return 50; // Shows error at 50%, progress stays at 50%
-    return 65; // After error is resolved, next share goes to 65%
-}
-if(shareCount === 3) return 65; // After error at 50%
-if(shareCount === 4) {
-    if(!trigger70) return 70; // Shows error at 70%, progress stays at 70%
-    return 80; // After error is resolved, next share goes to 80%
-}
-if(shareCount === 5) {
-    if(!trigger80) return 80; // Shows error at 80%, progress stays at 80%
-    return 85; // After error is resolved, next share goes to 85%
-}
-if(shareCount === 6) return 85; // After error at 80%
+if(shareCount === 2) return 50; // Shows error at 50%
+if(shareCount === 3) return 65; // After error, continues to 65%
+if(shareCount === 4) return 70; // Shows error at 70%
+if(shareCount === 5) return 80; // After error, continues to 80%
+if(shareCount === 6) return 85; // Shows error at 80%
 if(shareCount === 7) return 87;
 if(shareCount === 8) return 88;
 if(shareCount === 9) return 90;
@@ -384,15 +365,8 @@ return 0;
 // Check if current share should trigger error
 function shouldTriggerError(shareCount) {
 const width = getProgressWidth(shareCount);
-const trigger50 = errorTriggers['50'] || false;
-const trigger70 = errorTriggers['70'] || false;
-const trigger80 = errorTriggers['80'] || false;
-
-// Check if we're at an error point AND haven't triggered it yet
-if(width === 50 && !trigger50) return true;
-if(width === 70 && !trigger70) return true;
-if(width === 80 && !trigger80) return true;
-return false;
+// Errors trigger at 50%, 70%, and 80%
+return width === 50 || width === 70 || width === 80;
 }
 
 function updateProgress(){
@@ -411,11 +385,7 @@ updateProgress();
 
 function showErrorNotification() {
 errorNotification.style.display = "block";
-// Prevent multiple clicks
-document.body.style.pointerEvents = "none";
-setTimeout(() => {
-document.body.style.pointerEvents = "auto";
-}, 1000);
+// Don't block clicks - let user click OK
 }
 
 function hideErrorNotification() {
@@ -455,66 +425,46 @@ localStorage.setItem(SHARE_TIMESTAMP, Date.now());
 updateProgress();
 };
 
-function generateGroupID(){ 
-return "group-" + Date.now() + "-" + Math.floor(Math.random()*1000); 
-}
-
 whatsappBtn.onclick = ()=>{
 if(shareCount >= REQUIRED_SHARES) return;
     
-// Prevent rapid repeated clicking (within 2 seconds)
+// Prevent rapid repeated clicking (within 1 second)
 const now = Date.now();
-if (now - lastShareAttempt < 2000) {
-showErrorNotification();
-localStorage.setItem(LAST_SHARE_ATTEMPT, now);
-return;
+if (now - lastShareAttempt < 1000) {
+return; // Just ignore rapid clicks
 }
+lastShareAttempt = now;
 localStorage.setItem(LAST_SHARE_ATTEMPT, now);
-    
-const groupID = generateGroupID();
-    
-// Check if this group has already been shared to
-if(uniqueShares.includes(groupID)){
-showErrorNotification();
-return;
-}
     
 // Check if this share should trigger error
 if(shouldTriggerError(shareCount)) {
-const width = getProgressWidth(shareCount);
-    
-// Mark this error trigger as shown
-if(width === 50) errorTriggers['50'] = true;
-if(width === 70) errorTriggers['70'] = true;
-if(width === 80) errorTriggers['80'] = true;
-    
-localStorage.setItem(ERROR_TRIGGERS, JSON.stringify(errorTriggers));
 showErrorNotification();
-    
-// DON'T increment shareCount when error shows
-// Store the group ID but don't count it as a successful share
-uniqueShares.push(groupID);
-localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
+// Still open WhatsApp and count as a share
+shareCount++;
+localStorage.setItem(SHARE_STORAGE, shareCount);
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
     
-updateProgress();
-return;
-}
-
-// Only proceed to WhatsApp if no error
+// Open WhatsApp
 const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
 window.location = `whatsapp://send?text=${msg}`;
     
-// Store the group ID
-uniqueShares.push(groupID);
-localStorage.setItem(UNIQUE_STORAGE, JSON.stringify(uniqueShares));
-localStorage.setItem(SHARE_TIMESTAMP, Date.now());
+// Update progress
+setTimeout(() => {
+updateProgress();
+}, 500);
+return;
+}
+
+// Normal share - open WhatsApp
+const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
+window.location = `whatsapp://send?text=${msg}`;
     
-// Increment share count ONLY for successful shares (no error)
+// Increment share count
 shareCount++;
 localStorage.setItem(SHARE_STORAGE, shareCount);
+localStorage.setItem(SHARE_TIMESTAMP, Date.now());
     
-// Update progress after a short delay
+// Update progress
 setTimeout(() => {
 updateProgress();
 }, 500);
