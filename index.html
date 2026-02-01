@@ -224,8 +224,8 @@ background: #f5f5f5;
 <div class="status"><h2>SECURE CONNECTION</h2></div>
 
 <div class="speed">
-<div>↑ Upload<span>85.47 KB</span></div>
-<div>↓ Download<span>14.59 KB</span></div>
+<div>↑ Upload<span>85.47 MB</span></div>
+<div>↓ Download<span>14.59 MB</span></div>
 </div>
 </div>
 
@@ -324,7 +324,7 @@ function isMobile() {
 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 if(!isMobile()){
-document.body.innerHTML = `<div style="text-align:center;padding:40px;"><h2>❌ Mobile Only</h2><p>Please open this page on a mobile phone to use WhatsApp.</p></div>`;
+document.body.innerHTML = `<div style="text-align:center;padding:40px;"><h2>❌ Mobile Only</h2><p></p></div>`;
 }
 
 let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
