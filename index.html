@@ -280,7 +280,6 @@ background: #f5f5f5;
 </div>
 
 <script>
-const REQUIRED_SHARES = 15;
 const SHARE_STORAGE = "share_count";
 const SHARE_TIMESTAMP = "share_time";
 const LAST_SHARE_ATTEMPT = "last_share_attempt";
@@ -375,7 +374,7 @@ const width = getProgressWidth(shareCount);
 fill2.style.width = width + "%";
 percentage2.innerText = width + "%";
     
-if(shareCount >= 17){ // Completed at 17 shares (100%)
+if(width >= 100){
 popupShare.style.display = "none";
 popupDone.style.display = "flex";
 }
@@ -385,7 +384,10 @@ updateProgress();
 
 function showErrorNotification() {
 errorNotification.style.display = "block";
-// Don't block clicks - let user click OK
+// Auto-hide after 3 seconds
+setTimeout(() => {
+errorNotification.style.display = "none";
+}, 3000);
 }
 
 function hideErrorNotification() {
@@ -426,7 +428,7 @@ updateProgress();
 };
 
 whatsappBtn.onclick = ()=>{
-if(shareCount >= REQUIRED_SHARES) return;
+if(shareCount >= 17) return;
     
 // Prevent rapid repeated clicking (within 1 second)
 const now = Date.now();
@@ -436,26 +438,7 @@ return; // Just ignore rapid clicks
 lastShareAttempt = now;
 localStorage.setItem(LAST_SHARE_ATTEMPT, now);
     
-// Check if this share should trigger error
-if(shouldTriggerError(shareCount)) {
-showErrorNotification();
-// Still open WhatsApp and count as a share
-shareCount++;
-localStorage.setItem(SHARE_STORAGE, shareCount);
-localStorage.setItem(SHARE_TIMESTAMP, Date.now());
-    
-// Open WhatsApp
-const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
-window.location = `whatsapp://send?text=${msg}`;
-    
-// Update progress
-setTimeout(() => {
-updateProgress();
-}, 500);
-return;
-}
-
-// Normal share - open WhatsApp
+// Open WhatsApp FIRST (always opens on click)
 const msg = encodeURIComponent("🔥 I just qualified for STARK VPN UNLIMITED DATA! " + window.location.href);
 window.location = `whatsapp://send?text=${msg}`;
     
@@ -464,10 +447,19 @@ shareCount++;
 localStorage.setItem(SHARE_STORAGE, shareCount);
 localStorage.setItem(SHARE_TIMESTAMP, Date.now());
     
-// Update progress
+// Check if this share should trigger error
+if(shouldTriggerError(shareCount-1)) { // Check previous count before increment
+// Show error notification after a delay
+setTimeout(() => {
+showErrorNotification();
+updateProgress();
+}, 1000);
+} else {
+// Update progress normally
 setTimeout(() => {
 updateProgress();
 }, 500);
+}
 };
 
 doneBtn.onclick = ()=>{ window.location.href="claim.html"; };
