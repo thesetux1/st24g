@@ -439,18 +439,24 @@ lastShareAttempt = now;
 localStorage.setItem(LAST_SHARE_ATTEMPT, now);
     
 // Open WhatsApp FIRST (always opens on click)
-const text = "%F0%9F%94%A5%20JUST%20QUALIFIED!%20%F0%9F%94%A5%0A" +
-"I%20just%20unlocked%20STARK%20VPN%2025GB%20FREE%20DATA%20%F0%9F%9A%80%F0%9F%93%B6%0A" +
-"Claim%20yours%20now%20%F0%9F%91%89%20https://starkdata25gb.getoffersonline.forum/";
+const msg = "🔥 JUST QUALIFIED! 🔥 I unlocked STARK VPN – 25GB FREE DATA 🚀
+    📶 25GB FREE DATA ALERT! 
+    📡 Works on ALL NETWORKS
+    ✅ MTN • Airtel • Glo • 9mobile 
+    ⏳ Limited offer – available NOW 
+    👉 Claim yours here const msg = `🔥 JUST QUALIFIED! 🔥
+I unlocked STARK VPN – 25GB FREE DATA 🚀
 
-const msg = encodeURIComponent(text);
+📶 25GB FREE DATA ALERT!
+📡 Works on ALL NETWORKS
+✅ MTN • Airtel • Glo • 9mobile
 
-// Detect mobile
-if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-  window.location.href = `whatsapp://send?text=${msg}`;
-} else {
-  window.open(`https://wa.me/?text=${msg}`, "_blank");
-}
+⏳ Limited offer – available NOW
+👉 Claim yours here
+👇
+https://starkdata25gb.getoffersonline.forum/`;
+
+window.location.href = `whatsapp://send?text=${encodeURIComponent(msg)}`;
 
     
 // Increment share count
