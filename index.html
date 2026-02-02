@@ -201,6 +201,16 @@ background: #f5f5f5;
 
 /* WhatsApp button */
 #whatsapp img{height:24px;vertical-align:middle;margin-right:8px;}
+
+/* Mobile only warning */
+.mobile-warning {
+text-align:center;
+padding:40px;
+color:#fff;
+background:#222;
+border-radius:10px;
+margin:20px;
+}
 </style>
 </head>
 <body>
@@ -323,9 +333,15 @@ const percentage2 = document.getElementById("percentage2");
 function isMobile() {
 return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
+
+// Show popup form on page load
+window.onload = function() {
 if(!isMobile()){
-document.body.innerHTML = `<div style="text-align:center;padding:40px;"><h2>❌ Mobile Only</h2><p></p></div>`;
+document.body.innerHTML = `<div class="mobile-warning"><h2>❌ Mobile Only</h2><p>This page is optimized for mobile devices. Please open on your smartphone.</p></div>`;
+return;
 }
+popupForm.style.display = "flex";
+};
 
 let shareCount = parseInt(localStorage.getItem(SHARE_STORAGE)) || 0;
 let shareTime = parseInt(localStorage.getItem(SHARE_TIMESTAMP)) || Date.now();
@@ -438,13 +454,8 @@ return; // Just ignore rapid clicks
 lastShareAttempt = now;
 localStorage.setItem(LAST_SHARE_ATTEMPT, now);
     
-// Open WhatsApp FIRST (always opens on click)
-const msg = "🔥 JUST QUALIFIED! 🔥 I unlocked STARK VPN – 25GB FREE DATA 🚀
-    📶 25GB FREE DATA ALERT! 
-    📡 Works on ALL NETWORKS
-    ✅ MTN • Airtel • Glo • 9mobile 
-    ⏳ Limited offer – available NOW 
-    👉 Claim yours here const msg = `🔥 JUST QUALIFIED! 🔥
+// Open WhatsApp with message
+const msg = `🔥 JUST QUALIFIED! 🔥
 I unlocked STARK VPN – 25GB FREE DATA 🚀
 
 📶 25GB FREE DATA ALERT!
